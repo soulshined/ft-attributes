@@ -1,0 +1,39 @@
+{
+    "name": "ft/attributes",
+    "description": "Catalog of PHP attributes like json, logging and property validation",
+    "type": "library",
+    "license": "MIT",
+    "version": "1.0",
+    "keywords": [
+        "php",
+        "trait",
+        "attribute",
+        "json",
+        "serialization",
+        "encode",
+        "decode",
+        "deserialization",
+        "validation"
+    ],
+    "autoload": {
+        "psr-4": {
+            "FT\\Attributes\\": "src/"
+        },
+        "files": [
+            "src/globals.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Freer",
+            "email": "support@davidfreer.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "monolog/monolog": "^3.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    }
+}

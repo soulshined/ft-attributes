@@ -1,0 +1,3 @@
+[submodule "ft-attributes.wiki"]
+	path = ft-attributes.wiki
+	url = https://github.com/soulshined/ft-attributes.wiki.git

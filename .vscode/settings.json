@@ -1,0 +1,18 @@
+{
+    "workbench.colorCustomizations": {},
+    "[asciidoc]": {
+        "editor.quickSuggestions": {
+            "other": "on",
+            "comments": "on",
+            "strings": "on"
+        }
+    },
+    "asciidoc.preview.scrollEditorWithPreview": false,
+    "php-built-in-server.server": {
+        "headless": {
+            "enabled": true,
+            "clearTerminalOnSave": true
+        },
+        "root": "./.dev/index.php"
+    }
+}

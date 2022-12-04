@@ -1,0 +1,29 @@
+{
+    "attr" : {
+        "prefix" : "attr",
+        "scope" : "asciidoc",
+        "body" : "`#[$0]`"
+    },
+    "collapsible" : {
+        "prefix" : "collapsible",
+        "scope" : "asciidoc",
+        "body" : [
+            ".$1",
+            "[%collapsible]",
+            "====",
+            "$0",
+            "===="
+        ]
+    },
+    "php" : {
+        "prefix" : "php",
+        "scope" : "asciidoc",
+        "body" : [
+            "[source,php]",
+            "----",
+            "<?php",
+            "$0",
+            "----"
+        ]
+    }
+}

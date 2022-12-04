@@ -1,0 +1,63 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Debug Index.php",
+            "command": "C:\\Server\\bin\\php\\php.exe",
+            "type": "shell",
+            "args": [
+                "./.dev/index.php",
+                "-d",
+                "xdebug.remote_port=9003"
+            ],
+            "options": {
+                "env": {
+                    "XDEBUG_MODE": "debug,develop",
+                    "XDEBUG_CONFIG": "idekey=VSCODE",
+                    "ft.log_level": "Debug"
+                }
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build"
+        },
+        {
+            "label": "Run Tests",
+            "command": "C:\\Server\\bin\\php\\php.exe",
+            "type": "shell",
+            "args": [
+                "-d",
+                 "xdebug.remote_port=9003",
+                 "./vendor/bin/phpunit",
+                 "tests",
+                 "--filter",
+                 "${input:filterClass}",
+                 "--verbose"
+
+            ],
+            "options": {
+                "env": {
+                    "XDEBUG_MODE": "debug,develop",
+                    "XDEBUG_CONFIG" : "idekey=VSCODE",
+                    "ft.log_level" : "Debug"
+                }
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": {
+                "isDefault": true,
+                "kind": "build"
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "type": "promptString",
+            "default": "${fileBasenameNoExtension}",
+            "description": "Test Class Name to Run",
+            "id": "filterClass"
+        }
+    ]
+}
