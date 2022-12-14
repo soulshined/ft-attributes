@@ -3,7 +3,7 @@
     "description": "Catalog of PHP attributes like json, logging and property validation",
     "type": "library",
     "license": "MIT",
-    "version": "1.0",
+    "version": "1.1",
     "keywords": [
         "php",
         "trait",

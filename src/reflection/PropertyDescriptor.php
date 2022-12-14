@@ -35,6 +35,8 @@ class PropertyDescriptor extends AnnotatedMember {
             if ($type->isBuiltin()) continue;
             return $type->getName();
         }
+
+        return null;
     }
 
     public function has_type($name) {
@@ -43,8 +45,10 @@ class PropertyDescriptor extends AnnotatedMember {
         }
         else
         foreach ($this->type->getTypes() as $type) {
-            return strtolower($type->getName()) === strtolower($name);
+            if (strtolower($type->getName()) === strtolower($name)) return true;
         }
+
+        return false;
     }
 
     public function is_enum() {

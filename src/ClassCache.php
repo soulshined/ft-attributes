@@ -15,7 +15,6 @@ abstract class ClassCache {
     }
 
     public static function get(string $class_name) : ManagedType {
-        $class_name = strtolower($class_name);
         if (key_exists($class_name, static::$cache))
             return static::$cache[$class_name];
 
