@@ -31,7 +31,8 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "monolog/monolog": "^3.2"
+        "monolog/monolog": "^3.2",
+        "ft/reflection": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5"
