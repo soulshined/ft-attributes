@@ -2,8 +2,8 @@
 namespace FT\Attributes\Json\Conversion\Base;
 
 use DateTimeImmutable;
-use Exception;
 use FT\Attributes\Json\Conversion\Converter;
+use FT\Attributes\Json\Exceptions\JsonException;
 use FT\Attributes\Json\JsonPropertyDescriptor;
 
 final class IntToDateTimeImmutableConverter extends Converter {
@@ -19,7 +19,7 @@ final class IntToDateTimeImmutableConverter extends Converter {
 
         $date = DateTimeImmutable::createFromFormat(DATE_RFC3339_NTZ, $date_str);
         if ($date === false)
-            throw new Exception("Can not deserialize date '$value' for {$pd->get_qualified_name()}");
+            throw new JsonException("Can not deserialize date '$value' for {$pd->get_qualified_name()}");
 
         return $date;
     }

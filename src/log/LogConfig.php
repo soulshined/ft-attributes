@@ -5,7 +5,7 @@ namespace FT\Attributes\Log;
 use Monolog\Level;
 use Attribute;
 use DateTimeZone;
-use FT\Attributes\PEL\PEL;
+use FT\Reflection\Attributes\PEL;
 
 #[Attribute(Attribute::TARGET_CLASS)]
 final class LogConfig {
@@ -23,7 +23,7 @@ final class LogConfig {
         else $this->timezone = $timezone;
 
         if (is_string($level)) {
-            $str_level = PEL::resolve_placeholders($level);
+            $str_level = PEL::eval($level);
             $this->level = Level::fromName(empty($str_level) ? 'Info' : $str_level);
         }
         else $this->level = $level;

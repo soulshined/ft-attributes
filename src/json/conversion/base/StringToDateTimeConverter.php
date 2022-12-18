@@ -3,8 +3,8 @@
 namespace FT\Attributes\Json\Conversion\Base;
 
 use DateTime;
-use Exception;
 use FT\Attributes\Json\Conversion\Converter;
+use FT\Attributes\Json\Exceptions\JsonException;
 use FT\Attributes\Json\JsonPropertyDescriptor;
 use FT\Attributes\Json\JsonTemporal;
 
@@ -25,7 +25,7 @@ final class StringToDateTimeConverter extends Converter {
 
         $date = DateTime::createFromFormat($format, $value);
         if ($date === false)
-            throw new Exception("Can not deserialize date '$value' with format $format for {$pd->get_qualified_name()}");
+            throw new JsonException("Can not deserialize date '$value' with format $format for {$pd->get_qualified_name()}");
 
         return $date;
     }

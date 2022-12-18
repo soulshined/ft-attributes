@@ -3,14 +3,14 @@
 namespace FT\Attributes\Validation;
 
 use Attribute;
-use FT\Attributes\Reflection\PropertyDescriptor;
+use FT\Reflection\Property;
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final class Min implements ValidationAware {
 
     public function __construct(public readonly float $value, public readonly ?string $message = null) { }
 
-    public function validate(PropertyDescriptor $pd, mixed $value): ?IllegalArgumentException
+    public function validate(Property $property, mixed $value): ?IllegalArgumentException
     {
         $transposed_count = 0;
         if (is_countable($value))
@@ -22,7 +22,7 @@ final class Min implements ValidationAware {
         else return null;
 
         return $transposed_count < $this->value
-            ? new IllegalArgumentException($this->message ?? $pd->get_qualified_name() . " is less than allowed minimum " . $this->value)
+            ? new IllegalArgumentException($this->message ?? $property->get_qualified_name() . " is less than allowed minimum " . $this->value)
             : null;
     }
 

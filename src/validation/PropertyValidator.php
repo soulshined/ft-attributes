@@ -4,8 +4,8 @@ namespace FT\Attributes\Validation;
 
 use FT\Attributes\Observable\ObservableAction;
 use FT\Attributes\Observable\ObservableProperties;
-use FT\Attributes\Reflection\Attribute;
-use FT\Attributes\Reflection\PropertyDescriptor;
+use FT\Reflection\Attribute;
+use FT\Reflection\Property;
 
 trait PropertyValidator {
     use ObservableProperties;
@@ -23,17 +23,17 @@ trait PropertyValidator {
         });
     }
 
-    private function get_all_validators(PropertyDescriptor $pd) : array {
+    private function get_all_validators(Property $property) : array {
         $validators = [
-            $pd->get_attribute(Email::class),
-            $pd->get_attribute(Max::class),
-            $pd->get_attribute(Min::class),
-            $pd->get_attribute(Negative::class),
-            $pd->get_attribute(NotEmpty::class),
-            $pd->get_attribute(Pattern::class),
-            $pd->get_attribute(Positive::class),
-            $pd->get_attribute(Size::class),
-            $pd->get_attribute(Url::class),
+            $property->get_attribute(Email::class),
+            $property->get_attribute(Max::class),
+            $property->get_attribute(Min::class),
+            $property->get_attribute(Negative::class),
+            $property->get_attribute(NotEmpty::class),
+            $property->get_attribute(Pattern::class),
+            $property->get_attribute(Positive::class),
+            $property->get_attribute(Size::class),
+            $property->get_attribute(Url::class),
             ...CustomPropertyValidators::get()
         ];
         return array_map(function ($i) {

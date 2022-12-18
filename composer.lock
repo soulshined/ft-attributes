@@ -4,8 +4,59 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1c2a4d4da0966098ab31cec28ae082bb",
+    "content-hash": "01c57aedd0f4a50bcc9b73710823a541",
     "packages": [
+        {
+            "name": "ft/reflection",
+            "version": "2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/soulshined/ft-reflection.git",
+                "reference": "feda5c0e34fc74a2f16c1829f8002e33290bf883"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/soulshined/ft-reflection/zipball/feda5c0e34fc74a2f16c1829f8002e33290bf883",
+                "reference": "feda5c0e34fc74a2f16c1829f8002e33290bf883",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/globals.php"
+                ],
+                "psr-4": {
+                    "FT\\Reflection\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freer",
+                    "email": "support@davidfreer.com"
+                }
+            ],
+            "description": "A PHP reflection library",
+            "keywords": [
+                "php",
+                "reflection",
+                "utils"
+            ],
+            "support": {
+                "issues": "https://github.com/soulshined/ft-reflection/issues",
+                "source": "https://github.com/soulshined/ft-reflection/tree/2.0"
+            },
+            "time": "2022-12-19T02:40:28+00:00"
+        },
         {
             "name": "monolog/monolog",
             "version": "3.2.0",

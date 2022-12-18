@@ -4,10 +4,10 @@ namespace FT\Attributes\Json;
 
 use Attribute;
 use BackedEnum;
-use Exception;
-use FT\Attributes\Inheritable;
 use FT\Attributes\Json\Conversion\ConversionService;
-use FT\Attributes\Reflection\ReflectionUtils;
+use FT\Attributes\Json\Exceptions\JsonException;
+use FT\Reflection\Attributes\Inheritable;
+use FT\Reflection\ReflectionUtils;
 use ReflectionEnum;
 use stdClass;
 use UnitEnum;
@@ -46,7 +46,7 @@ final class Json {
         else if ($value instanceof UnitEnum)
             $final = $value->name;
         else if (is_object($value)) {
-            $target = JsonCache::get($pd->type->getName());
+            $target = JsonCache::get($pd->get_class_name());
             $target_resolved = Json::jsonify($target, $value);
 
             if ($pd->has_json_unwrapped) {
@@ -56,7 +56,7 @@ final class Json {
 
                 return $final;
             } else {
-                if ($pd->has_type('array'))
+                if ($pd->type->has_type('array'))
                     $final = $target_resolved;
                 else if (empty($target_resolved)) $final = null;
                 else $final = $target_resolved;
@@ -71,7 +71,7 @@ final class Json {
     private static function jsonify(JsonCachedClass $class, object $object) {
         $out = [];
         foreach ($class->resolved_properties as $pd) {
-            if (!$pd->property->isInitialized($object)) {
+            if (!$pd->delegate->isInitialized($object)) {
                 $value = $pd->getDefault();
 
                 if ($value === null && $class->config->include !== JsonInclude::NON_NULL)
@@ -81,7 +81,7 @@ final class Json {
                 continue;
             }
 
-            $value = $pd->property->getValue($object);
+            $value = $pd->delegate->getValue($object);
 
             if ($value === null && $pd->has_json_default)
                 $value = $pd->getDefault();
@@ -94,7 +94,7 @@ final class Json {
     }
 
     private static function decodify(JsonCachedClass $class, object $object) {
-        $new = $class->type->delegate->newInstance();
+        $new = $class->newInstance();
 
         /**
          * @var JsonPropertyDescriptor[]
@@ -104,13 +104,11 @@ final class Json {
         foreach ($class->resolved_properties as $pd) {
             if ($pd->has_json_unwrapped) {
                 $target = JsonCache::get($pd->get_class_name());
-                $unwrappeds[$pd->name] = ['cache' => $target, 'new' => $target->type->delegate->newInstance()];
+                $unwrappeds[$pd->name] = ['cache' => $target, 'new' => $target->delegate->newInstance()];
             }
         }
 
         foreach ($object as $key => $value) {
-            // NOTE [04-Dec-2022]: what if $value is array
-            // TODO [05-Dec-2022]: custom json exceptions
             $target = $new;
             $target_config = $class->config;
 
@@ -119,7 +117,7 @@ final class Json {
                 $pd = $class->find_property_in_wrapped_object($key);
 
                 if ($pd === null)
-                    throw new Exception("$key does not exist");
+                    throw new JsonException("$key does not exist on " . $class->name);
 
                 $unwrapped = $unwrappeds[$pd->name];
                 $target = $unwrapped['new'];
@@ -131,14 +129,14 @@ final class Json {
             if ($value === null && $target_config->include === JsonInclude::NON_NULL)
                 continue;
 
-            if ($pd->is_enum()) {
+            if ($pd->type->is_enum()) {
                 $enum = new ReflectionEnum($pd->get_class_name());
                 $target_accessor = "name";
                 $fvalue = $value;
 
                 if ($value instanceof stdClass) {
                     if (!property_exists($value, 'name'))
-                        throw new Exception(); // TODO [05-Dec-2022]:
+                        throw new JsonException("Deserializing enums requires a name property to exist");
 
                     $fvalue = $value->name;
                 }
@@ -147,20 +145,18 @@ final class Json {
                 $match = false;
                 foreach ($enum->getCases() as $case) {
                     if ($case->{$target_accessor} === $fvalue) {
-                        $pd->property->setValue($target, $case->getValue());
+                        $pd->delegate->setValue($target, $case->getValue());
                         $match = true;
                         break;
                     }
                 }
 
                 if (!$match)
-                    // TODO [05-Dec-2022]:
-                    throw new Exception("Enum case does not exist");
+                    throw new JsonException("Enum case does not exist for " . $pd->get_qualified_name());
             }
             else if ($value instanceof stdClass) {
                 $class_name = $pd->get_class_name() ?? "stdClass";
-                // TODO [06-Dec-2022]: don't encode used decodify
-                $pd->property->setValue($target, Json::decode(json_encode($value), $class_name));
+                $pd->delegate->setValue($target, static::decodify(JsonCache::get($class_name), $value));
             }
             else if (is_countable($value)) {
                 if (count($value) === 0 && $target_config->include === JsonInclude::NON_EMPTY)
@@ -172,22 +168,21 @@ final class Json {
                     for ($i=0; $i < count($value); $i++) {
                         $element = $value[$i];
                         if (!($element instanceof stdClass))
-                            throw new Exception("Expecting array index [$i] to be of type $unmarshall_class @ " . $pd->get_qualified_name());
+                            throw new JsonException("Expecting array index [$i] to be of type $unmarshall_class @ " . $pd->get_qualified_name());
 
                         $pd_array[] = static::decodify(JsonCache::get($unmarshall_class), $element);
                     }
 
-                    $pd->property->setValue($target, $pd_array);
-                } else $pd->property->setValue($target, $value);
+                    $pd->delegate->setValue($target, $pd_array);
+                } else $pd->delegate->setValue($target, $value);
             }
             else {
-                $source_class = gettype($value);
+                $source_class = ReflectionUtils::get_class_name($value);
+                if ($source_class === null) $source_class = gettype($value);
+
                 $target_class = $pd->get_class_name();
                 if ($target_class === null) {
-                    if ($pd->type instanceof \ReflectionNamedType)
-                        $target_class = $pd->type->getName();
-                    else
-                        foreach ($pd->type->getTypes() as $type)
+                        foreach ($pd->type->types as $type)
                             if (ConversionService::can_covert($source_class, $type->getName())) {
                                 $target_class = $type->getName();
                                 break;
@@ -195,9 +190,9 @@ final class Json {
                 }
 
                 if (ConversionService::can_covert($source_class, $target_class))
-                    $pd->property->setValue($target, ConversionService::convert($value, $target_class, $pd));
+                    $pd->delegate->setValue($target, ConversionService::convert($value, $target_class, $pd));
                 else
-                    $pd->property->setValue($target, $value);
+                    $pd->delegate->setValue($target, $value);
             }
         }
 
@@ -211,7 +206,7 @@ final class Json {
         $decoded = json_decode($json);
 
         if (json_last_error() !== JSON_ERROR_NONE)
-            throw new Exception(json_last_error_msg());
+            throw new JsonException(json_last_error_msg());
 
         return static::decodify(JsonCache::get($class_name), $decoded);
     }
@@ -221,7 +216,7 @@ final class Json {
         $encoded = json_encode($result);
 
         if (json_last_error() !== JSON_ERROR_NONE)
-            throw new Exception(json_last_error_msg());
+            throw new JsonException(json_last_error_msg());
 
         return $encoded;
     }

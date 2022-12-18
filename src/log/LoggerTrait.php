@@ -2,8 +2,8 @@
 
 namespace FT\Attributes\Log;
 
-use FT\Attributes\ClassCache;
 use FT\Attributes\Log\LogConfig;
+use FT\Reflection\ClassCache;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;

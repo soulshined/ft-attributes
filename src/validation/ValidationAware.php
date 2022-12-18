@@ -2,11 +2,11 @@
 
 namespace FT\Attributes\Validation;
 
-use FT\Attributes\Reflection\PropertyDescriptor;
+use FT\Reflection\Property;
 
 interface ValidationAware {
 
-    public function validate(PropertyDescriptor $pd, mixed $value) : ?IllegalArgumentException;
+    public function validate(Property $property, mixed $value) : ?IllegalArgumentException;
 
 }
 ?>

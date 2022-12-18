@@ -2,9 +2,9 @@
 
 namespace FT\Attributes\Json;
 
-use FT\Attributes\Reflection\PropertyDescriptor;
+use FT\Reflection\Property;
 
-final class JsonPropertyDescriptor extends PropertyDescriptor {
+final class JsonPropertyDescriptor extends Property {
 
     public readonly bool $has_json_default;
     public readonly bool $has_json_temporal;
@@ -13,18 +13,18 @@ final class JsonPropertyDescriptor extends PropertyDescriptor {
     public readonly string $json_key;
     public readonly bool $is_ignored;
 
-    public function __construct(PropertyDescriptor $pd)
+    public function __construct(Property $property)
     {
-        parent::__construct($pd->property);
-        $this->has_json_default = $pd->has_attribute(JsonDefault::class);
-        $this->has_json_temporal = $pd->has_attribute(JsonTemporal::class);
-        $this->is_ignored = $pd->has_attribute(JsonIgnore::class);
-        $this->has_json_unwrapped = $pd->has_attribute(JsonUnwrapped::class);
-        $this->is_json_array = $pd->has_attribute(JsonArray::class);
+        parent::__construct($property->delegate);
+        $this->has_json_default = $property->has_attribute(JsonDefault::class);
+        $this->has_json_temporal = $property->has_attribute(JsonTemporal::class);
+        $this->is_ignored = $property->has_attribute(JsonIgnore::class);
+        $this->has_json_unwrapped = $property->has_attribute(JsonUnwrapped::class);
+        $this->is_json_array = $property->has_attribute(JsonArray::class);
 
-        $this->json_key = $pd->has_attribute(JsonProperty::class)
-            ? $pd->get_attribute(JsonProperty::class)->getArgument('value')
-            : $pd->name;
+        $this->json_key = $property->has_attribute(JsonProperty::class)
+            ? $property->get_attribute(JsonProperty::class)->getArgument('value')
+            : $property->name;
     }
 
     public function getDefault() {
@@ -32,6 +32,11 @@ final class JsonPropertyDescriptor extends PropertyDescriptor {
 
         return $attr === null ? null : $attr->getArgument('value');
     }
+
+    public function get_class_name() : ?string {
+        return array_first(fn ($i) => true, $this->type->get_class_names());
+    }
+
 }
 
 ?>

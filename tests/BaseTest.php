@@ -1,6 +1,6 @@
 <?php
 
-use FT\Attributes\ClassCache;
+use FT\Reflection\ClassCache;
 use PHPUnit\Framework\TestCase;
 
 $include_models = [
@@ -54,8 +54,8 @@ abstract class BaseTest extends TestCase {
 
             $this->assertNotNull($target_prop, "Actual does not have property: $pd->name");
 
-            $exp_val = $pd->property->getValue($expected);
-            $target_val = $target_prop->property->getValue($actual);
+            $exp_val = $pd->delegate->getValue($expected);
+            $target_val = $target_prop->delegate->getValue($actual);
             $this->assertEquals($exp_val, $target_val);
         }
     }

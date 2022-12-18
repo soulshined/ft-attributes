@@ -20,15 +20,4 @@ ConversionService::add_converters(
     new IntToDateTimeImmutableConverter
 );
 
-/**
- * return the first element that matches predicate or null otherwise
- */
-function array_first(callable $callback, array $array) : mixed {
-    foreach ($array as $key => $value) {
-        if (call_user_func($callback, $value))
-            return $value;
-    }
-
-    return null;
-}
 ?>

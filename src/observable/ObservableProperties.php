@@ -2,10 +2,10 @@
 
 namespace FT\Attributes\Observable;
 
-use FT\Attributes\ClassCache;
 use FT\Attributes\Json\JsonIgnore;
 use FT\Attributes\Lombok\AccessLevel;
 use FT\Attributes\Lombok\Setter;
+use FT\Reflection\ClassCache;
 
 trait ObservableProperties
 {

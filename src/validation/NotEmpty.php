@@ -3,7 +3,7 @@
 namespace FT\Attributes\Validation;
 
 use Attribute;
-use FT\Attributes\Reflection\PropertyDescriptor;
+use FT\Reflection\Property;
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final class NotEmpty implements ValidationAware
@@ -11,9 +11,9 @@ final class NotEmpty implements ValidationAware
 
     public function __construct(public readonly ?string $message = null) { }
 
-    public function validate(PropertyDescriptor $pd, mixed $value): ?IllegalArgumentException
+    public function validate(Property $property, mixed $value): ?IllegalArgumentException
     {
-        $error = new IllegalArgumentException($this->message ?? $pd->get_qualified_name() . " is not expected to be empty");
+        $error = new IllegalArgumentException($this->message ?? $property->get_qualified_name() . " is not expected to be empty");
 
         if (!isset($value)) return null;
         if ($value === null) return $error;

@@ -1,8 +1,6 @@
 <?php
 
-use FT\Attributes\Lombok\Getter;
 use FT\Attributes\Lombok\LombokProperties;
-use FT\Attributes\Lombok\Setter;
 use FT\Attributes\Validation\CustomPropertyValidators;
 use FT\Attributes\Validation\Email;
 use FT\Attributes\Validation\IllegalArgumentException;
