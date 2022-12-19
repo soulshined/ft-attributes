@@ -19,7 +19,7 @@ final class IntToDateTimeImmutableConverter extends Converter {
 
         $date = DateTimeImmutable::createFromFormat(DATE_RFC3339_NTZ, $date_str);
         if ($date === false)
-            throw new JsonException("Can not deserialize date '$value' for {$pd->get_qualified_name()}");
+            throw new JsonException("Can not deserialize date '$value' for {$pd->property->get_qualified_name()}");
 
         return $date;
     }

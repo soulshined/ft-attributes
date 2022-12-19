@@ -19,13 +19,13 @@ final class StringToDateTimeConverter extends Converter {
     {
         $format = DATE_RFC3339_NTZ;
         if ($pd->has_json_temporal) {
-            $temporal = $pd->get_attribute(JsonTemporal::class);
+            $temporal = $pd->property->get_attribute(JsonTemporal::class);
             $format = $temporal->getArgument('format') ?? DATE_RFC3339_NTZ;
         }
 
         $date = DateTime::createFromFormat($format, $value);
         if ($date === false)
-            throw new JsonException("Can not deserialize date '$value' with format $format for {$pd->get_qualified_name()}");
+            throw new JsonException("Can not deserialize date '$value' with format $format for {$pd->property->get_qualified_name()}");
 
         return $date;
     }

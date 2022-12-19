@@ -17,7 +17,7 @@ final class DateTimeToStringConverter extends Converter {
     public function convert(JsonPropertyDescriptor $pd, mixed $value)
     {
         if ($pd->has_json_temporal) {
-            $temporal = $pd->get_attribute(JsonTemporal::class);
+            $temporal = $pd->property->get_attribute(JsonTemporal::class);
             $type = $temporal->getArgument('type');
             if ($type === JsonTemporalTypes::NUMBER)
                 return $value->getTimestamp();

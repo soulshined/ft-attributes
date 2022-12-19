@@ -56,7 +56,7 @@ final class Json {
 
                 return $final;
             } else {
-                if ($pd->type->has_type('array'))
+                if ($pd->property->type->has_type('array'))
                     $final = $target_resolved;
                 else if (empty($target_resolved)) $final = null;
                 else $final = $target_resolved;
@@ -71,7 +71,7 @@ final class Json {
     private static function jsonify(JsonCachedClass $class, object $object) {
         $out = [];
         foreach ($class->resolved_properties as $pd) {
-            if (!$pd->delegate->isInitialized($object)) {
+            if (!$pd->property->delegate->isInitialized($object)) {
                 $value = $pd->getDefault();
 
                 if ($value === null && $class->config->include !== JsonInclude::NON_NULL)
@@ -81,7 +81,7 @@ final class Json {
                 continue;
             }
 
-            $value = $pd->delegate->getValue($object);
+            $value = $pd->property->get_value($object);
 
             if ($value === null && $pd->has_json_default)
                 $value = $pd->getDefault();
@@ -129,7 +129,7 @@ final class Json {
             if ($value === null && $target_config->include === JsonInclude::NON_NULL)
                 continue;
 
-            if ($pd->type->is_enum()) {
+            if ($pd->property->type->is_enum()) {
                 $enum = new ReflectionEnum($pd->get_class_name());
                 $target_accessor = "name";
                 $fvalue = $value;
@@ -145,7 +145,7 @@ final class Json {
                 $match = false;
                 foreach ($enum->getCases() as $case) {
                     if ($case->{$target_accessor} === $fvalue) {
-                        $pd->delegate->setValue($target, $case->getValue());
+                        $pd->property->delegate->setValue($target, $case->getValue());
                         $match = true;
                         break;
                     }
@@ -156,7 +156,7 @@ final class Json {
             }
             else if ($value instanceof stdClass) {
                 $class_name = $pd->get_class_name() ?? "stdClass";
-                $pd->delegate->setValue($target, static::decodify(JsonCache::get($class_name), $value));
+                $pd->property->delegate->setValue($target, static::decodify(JsonCache::get($class_name), $value));
             }
             else if (is_countable($value)) {
                 if (count($value) === 0 && $target_config->include === JsonInclude::NON_EMPTY)
@@ -164,7 +164,7 @@ final class Json {
 
                 if ($pd->is_json_array) {
                     $pd_array = [];
-                    $unmarshall_class = $pd->get_attribute(JsonArray::class)->getArgument('class_name');
+                    $unmarshall_class = $pd->property->get_attribute(JsonArray::class)->getArgument('class_name');
                     for ($i=0; $i < count($value); $i++) {
                         $element = $value[$i];
                         if (!($element instanceof stdClass))
@@ -173,8 +173,8 @@ final class Json {
                         $pd_array[] = static::decodify(JsonCache::get($unmarshall_class), $element);
                     }
 
-                    $pd->delegate->setValue($target, $pd_array);
-                } else $pd->delegate->setValue($target, $value);
+                    $pd->property->delegate->setValue($target, $pd_array);
+                } else $pd->property->delegate->setValue($target, $value);
             }
             else {
                 $source_class = ReflectionUtils::get_class_name($value);
@@ -182,7 +182,7 @@ final class Json {
 
                 $target_class = $pd->get_class_name();
                 if ($target_class === null) {
-                        foreach ($pd->type->types as $type)
+                        foreach ($pd->property->type->types as $type)
                             if (ConversionService::can_covert($source_class, $type->getName())) {
                                 $target_class = $type->getName();
                                 break;
@@ -190,9 +190,9 @@ final class Json {
                 }
 
                 if (ConversionService::can_covert($source_class, $target_class))
-                    $pd->delegate->setValue($target, ConversionService::convert($value, $target_class, $pd));
+                    $pd->property->delegate->setValue($target, ConversionService::convert($value, $target_class, $pd));
                 else
-                    $pd->delegate->setValue($target, $value);
+                    $pd->property->delegate->setValue($target, $value);
             }
         }
 
