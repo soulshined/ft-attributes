@@ -17,6 +17,7 @@ $include_models = [
     'FooWithEmbeddablesSubclass',
     'FooWithEnums',
     'FooWithJsonArray',
+    'FooWithJsonVia',
     'FooWithLocalIgnored',
     'IntEnum',
     'MyClass',
@@ -44,7 +45,7 @@ abstract class BaseTest extends TestCase {
         $target = ClassCache::get($actual::class);
 
         $this->assertSameSize($expcl->properties, $target->properties);
-        $this->assertEmpty(get_object_vars($expected));
+        $this->assertEmpty(get_object_vars($expected), var_export(get_object_vars($expected), true));
         $this->assertEmpty(get_object_vars($actual), "Actual has unexpected public vars applied");
 
         foreach ($expcl->properties as $pd) {
@@ -56,7 +57,7 @@ abstract class BaseTest extends TestCase {
 
             $exp_val = $pd->delegate->getValue($expected);
             $target_val = $target_prop->delegate->getValue($actual);
-            $this->assertEquals($exp_val, $target_val);
+            $this->assertEquals($exp_val, $target_val, "prop name: " . $target_prop->name);
         }
     }
 

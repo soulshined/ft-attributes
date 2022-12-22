@@ -20,6 +20,7 @@ use Tests\Model\FooWithLocalIgnored;
 use Tests\Model\FooWithClassAndLocalIgnoredSubclass;
 use Tests\Model\FooWithDefaultsSubclass;
 use Tests\Model\FooWithEmbeddablesSubclass;
+use Tests\Model\FooWithJsonVia;
 
 final class JsonEncodeTest extends BaseTest {
 
@@ -160,7 +161,25 @@ final class JsonEncodeTest extends BaseTest {
                 'dateTimeImmutableInteger' => $inow->getTimestamp(),
                 'dateTimeImmutableFormat' => $inow->format(DATE_RFC3339),
                 'dateTimeImmutableFormatInvalid' => $inow->format('invalid')
-            ]]
+            ]],
+
+            //test JsonVia
+            [new FooWithJsonVia, array_merge(['intEnumType' => [ 'name' => 'D', 'value' => 4]],
+                ['fname' => 'fnamez',
+                'lname' => 'lnamez',
+                'age' => null,
+                'codes' => [99,98,97,96],
+                'ownerAssociations' => [
+                    [ 'fname' => 'assc1', 'lname' => 'doe', 'age' => null ],
+                    [ 'fname' => 'assc2', 'lname' => 'doe', 'age' => null ],
+                    [ 'fname' => 'assc3', 'lname' => 'doe', 'age' => null ]
+                ],
+                'foos' => ['bar', 'bazz', 'buzz', 'bizz', 'bozz'],
+                'default' => [1,2,3,4],
+                'temporal_num' => $now->getTimestamp(),
+                'temporal_str' => $now->format(DATE_RFC3339_NTZ),
+                'misc' => 'misc'
+            ])],
         ]);
     }
 

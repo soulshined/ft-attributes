@@ -10,6 +10,7 @@ use Tests\Model\FooWithEmbeddables;
 use Tests\Model\FooWithEmbeddablesSubclass;
 use Tests\Model\FooWithEnums;
 use Tests\Model\FooWithJsonArray;
+use Tests\Model\FooWithJsonVia;
 use Tests\Model\FooWithLocalIgnored;
 use Tests\Model\IntEnum;
 use Tests\Model\MyClass;
@@ -55,6 +56,37 @@ final class JsonDecodeTest extends BaseTest {
             $this->assertStringStartsWith("Last Name", $class->lname);
             $this->assertGreaterThan(0, $class->age);
         }
+    }
+
+    /**
+    * @test
+    */
+    public function should_decode_for_json_via_test() {
+        $GLOBALS['now'] = new DateTime();
+
+        global $now;
+
+        $foo = FooWithJsonVia::new();
+
+        $encoded = Json::encode($foo);
+
+        $expected = new FooWithJsonVia;
+
+        $expected->alias = "misc";
+        $expected->codes = [99,98,97,96];
+        $expected->temporal_num = $now->getTimestamp();
+        $expected->temporal_str = $now->format(DATE_RFC3339_NTZ);
+        $expected->default = [1,2,3,4];
+        $expected->foos = ['bar', 'bazz', 'buzz', 'bizz', 'bozz'];
+        $expected->owner = new MyClass('fnamez', 'lnamez');
+        $expected->intEnumTypeCode = IntEnum::F->value;
+        $expected->ownerAssociations = [
+            new MyClass("assc1", "doe"),
+            new MyClass("assc2", "doe"),
+            new MyClass("assc3", "doe")
+        ];
+
+        $this->assertObjectsEqual($expected, Json::decode($encoded, FooWithJsonVia::class), ...['subscribers']);
     }
 
     private function build_foo($base_foo) {

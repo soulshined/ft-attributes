@@ -26,9 +26,9 @@ final class Json {
         return in_array($property, $this->ignored_properties);
     }
 
-    private static function resolve(JsonPropertyDescriptor $pd, $value) {
+    private static function resolve(JsonPropertyDescriptor $pd, $value, ?string $target_class_name = null) {
         $value_class = ReflectionUtils::get_class_name($value);
-        $target_class = $pd->get_class_name();
+        $target_class = $target_class_name ?? $pd->get_class_name();
 
         $final = null;
         if ($target_class === null || $value_class === null && $target_class === null)
@@ -46,7 +46,7 @@ final class Json {
         else if ($value instanceof UnitEnum)
             $final = $value->name;
         else if (is_object($value)) {
-            $target = JsonCache::get($pd->get_class_name());
+            $target = JsonCache::get($target_class);
             $target_resolved = Json::jsonify($target, $value);
 
             if ($pd->has_json_unwrapped) {
@@ -56,7 +56,7 @@ final class Json {
 
                 return $final;
             } else {
-                if ($pd->property->type->has_type('array'))
+                if (is_array($target_resolved) || $pd->property->type->has_type('array'))
                     $final = $target_resolved;
                 else if (empty($target_resolved)) $final = null;
                 else $final = $target_resolved;
@@ -72,22 +72,30 @@ final class Json {
         $out = [];
         foreach ($class->resolved_properties as $pd) {
             if (!$pd->property->delegate->isInitialized($object)) {
+                $value = null;
                 $value = $pd->getDefault();
+                $class_name = $pd->get_class_name();
+
+                if ($pd->is_via)
+                    [$value, $class_name] = $pd->get_value($object);
+
+                if ($value === null)
+                    $value = $pd->getDefault();
 
                 if ($value === null && $class->config->include !== JsonInclude::NON_NULL)
                     $out[$pd->json_key] = null;
-                else $out = array_merge($out, static::resolve($pd, $value));
+                else $out = array_merge($out, static::resolve($pd, $value, $class_name));
 
                 continue;
             }
 
-            $value = $pd->property->get_value($object);
+            [$value, $class_name] = $pd->get_value($object);
 
             if ($value === null && $pd->has_json_default)
                 $value = $pd->getDefault();
 
             if (empty($value) && $class->config->include === JsonInclude::NON_EMPTY) continue;
-            else $out = array_merge($out, static::resolve($pd, $value));
+            else $out = array_merge($out, static::resolve($pd, $value, $class_name));
         }
 
         return $out;
@@ -129,7 +137,13 @@ final class Json {
             if ($value === null && $target_config->include === JsonInclude::NON_NULL)
                 continue;
 
-            if ($pd->property->type->is_enum()) {
+            if ($pd->is_via) {
+                if (is_countable($value) && count($value) === 0 && $target_config->include === JsonInclude::NON_EMPTY)
+                    continue;
+
+                $pd->set_value($target, $value);
+            }
+            else if ($pd->property->type->is_enum()) {
                 $enum = new ReflectionEnum($pd->get_class_name());
                 $target_accessor = "name";
                 $fvalue = $value;
@@ -162,42 +176,13 @@ final class Json {
                 if (count($value) === 0 && $target_config->include === JsonInclude::NON_EMPTY)
                     continue;
 
-                if ($pd->is_json_array) {
-                    $pd_array = [];
-                    $unmarshall_class = $pd->property->get_attribute(JsonArray::class)->getArgument('class_name');
-                    for ($i=0; $i < count($value); $i++) {
-                        $element = $value[$i];
-                        if (!($element instanceof stdClass))
-                            throw new JsonException("Expecting array index [$i] to be of type $unmarshall_class @ " . $pd->get_qualified_name());
-
-                        $pd_array[] = static::decodify(JsonCache::get($unmarshall_class), $element);
-                    }
-
-                    $pd->property->delegate->setValue($target, $pd_array);
-                } else $pd->property->delegate->setValue($target, $value);
+                $pd->set_value($target, $value);
             }
-            else {
-                $source_class = ReflectionUtils::get_class_name($value);
-                if ($source_class === null) $source_class = gettype($value);
-
-                $target_class = $pd->get_class_name();
-                if ($target_class === null) {
-                        foreach ($pd->property->type->types as $type)
-                            if (ConversionService::can_covert($source_class, $type->getName())) {
-                                $target_class = $type->getName();
-                                break;
-                            }
-                }
-
-                if (ConversionService::can_covert($source_class, $target_class))
-                    $pd->property->delegate->setValue($target, ConversionService::convert($value, $target_class, $pd));
-                else
-                    $pd->property->delegate->setValue($target, $value);
-            }
+            else $pd->set_value($target, $value);
         }
 
         foreach ($unwrappeds as $name => $value)
-            $new->{$name} = $value['new'];
+            $class->get_property($name)->delegate->setValue($new, $value['new']);
 
         return $new;
     }
