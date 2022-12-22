@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e672df9de80a10d8351097cc8304b7cd",
+    "content-hash": "684442ac8c46639297c8195a01d5c989",
     "packages": [
         {
             "name": "ft/reflection",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/soulshined/ft-reflection.git",
-                "reference": "f464ab769fe53550bf3c990855df3e3efd505c4d"
+                "reference": "db7f5b108b912b3070c3f5666ea5ecf8ab3e0dc9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/soulshined/ft-reflection/zipball/f464ab769fe53550bf3c990855df3e3efd505c4d",
-                "reference": "f464ab769fe53550bf3c990855df3e3efd505c4d",
+                "url": "https://api.github.com/repos/soulshined/ft-reflection/zipball/db7f5b108b912b3070c3f5666ea5ecf8ab3e0dc9",
+                "reference": "db7f5b108b912b3070c3f5666ea5ecf8ab3e0dc9",
                 "shasum": ""
             },
             "require": {
@@ -55,7 +55,7 @@
                 "issues": "https://github.com/soulshined/ft-reflection/issues",
                 "source": "https://github.com/soulshined/ft-reflection/tree/2.1"
             },
-            "time": "2022-12-19T04:29:27+00:00"
+            "time": "2022-12-21T01:40:39+00:00"
         },
         {
             "name": "monolog/monolog",
