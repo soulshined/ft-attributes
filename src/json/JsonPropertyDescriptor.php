@@ -42,6 +42,9 @@ final class JsonPropertyDescriptor {
     }
 
     public function get_class_name() : ?string {
+        if ($this->is_json_array)
+            return $this->property->get_attribute(JsonArray::class)->getArgument('class_name');
+
         return array_first(fn ($i) => true, $this->property->type->get_class_names());
     }
 
@@ -65,7 +68,8 @@ final class JsonPropertyDescriptor {
             $getter = $this->get_via_method('getter');
             if ($getter !== null) {
                 $value = $getter->invoke($object);
-                $class_name = ReflectionUtils::get_class_name($value);
+                if (!$this->is_json_array)
+                    $class_name = ReflectionUtils::get_class_name($value);
             }
 
         } else $value = $this->property->get_value($object);

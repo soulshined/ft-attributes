@@ -33,9 +33,9 @@ final class Json {
         $final = null;
         if ($target_class === null || $value_class === null && $target_class === null)
             $final = $value;
-        else if (ConversionService::can_covert($value_class, $target_class))
+        else if (ConversionService::can_covert($value_class ?? 'null', $target_class))
             $final = ConversionService::convert($value, $target_class, $pd);
-        else if (ConversionService::can_covert($value_class, 'string'))
+        else if (ConversionService::can_covert($value_class ?? 'null', 'string'))
             $final = ConversionService::convert($value, 'string', $pd);
         else if ($value instanceof BackedEnum) {
             $enum = new class{};
@@ -61,7 +61,13 @@ final class Json {
                 else if (empty($target_resolved)) $final = null;
                 else $final = $target_resolved;
             }
-        } else $final = $value;
+        }
+        else if ($pd->is_json_array && is_array($value)) {
+            $final = [];
+            foreach ($value as $e)
+                $final[] = !is_object($e) ? $e : static::jsonify(JsonCache::get($pd->get_class_name()), $e);
+        }
+        else $final = $value;
 
         if (is_string($final))
             $final = utf8_encode($final);
@@ -193,11 +199,29 @@ final class Json {
         if (json_last_error() !== JSON_ERROR_NONE)
             throw new JsonException(json_last_error_msg());
 
-        return static::decodify(JsonCache::get($class_name), $decoded);
+        if (is_array($decoded)) {
+            $result = [];
+            foreach ($decoded as $o) {
+                if (!is_object($o))
+                    $result[] = $o;
+                else $result[] = static::decodify(JsonCache::get($class_name), $o);
+            }
+        } else $result = static::decodify(JsonCache::get($class_name), $decoded);
+
+        return $result;
     }
 
-    public static function encode(object $object) {
-        $result = Json::jsonify(JsonCache::get($object::class), $object);
+    public static function encode(object | array $object) {
+        if (is_array($object)) {
+            $result = [];
+            foreach ($object as $o) {
+                if (!is_object($o))
+                    $result[] = $o;
+                else $result[] = static::jsonify(JsonCache::get($o::class), $o);
+            }
+        }
+        else $result = Json::jsonify(JsonCache::get($object::class), $object);
+
         $encoded = json_encode($result);
 
         if (json_last_error() !== JSON_ERROR_NONE)

@@ -180,6 +180,17 @@ final class JsonEncodeTest extends BaseTest {
                 'temporal_str' => $now->format(DATE_RFC3339_NTZ),
                 'misc' => 'misc'
             ])],
+
+            //test array of classes
+            [[
+                new MyClass('name1f', 'name1l', 1),
+                new MyClass('name2f', 'name2l', 2),
+                new MyClass('name3f', 'name3l', 3)
+            ], [
+                [ 'fname' => 'name1f', 'lname' => 'name1l', 'age' => 1 ],
+                [ 'fname' => 'name2f', 'lname' => 'name2l', 'age' => 2 ],
+                [ 'fname' => 'name3f', 'lname' => 'name3l', 'age' => 3 ]
+            ]]
         ]);
     }
 

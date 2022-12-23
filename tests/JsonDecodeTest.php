@@ -89,6 +89,35 @@ final class JsonDecodeTest extends BaseTest {
         $this->assertObjectsEqual($expected, Json::decode($encoded, FooWithJsonVia::class), ...['subscribers']);
     }
 
+    /**
+    * @test
+    */
+    public function should_decode_array_of_classes_test() {
+        $objects = [
+            new MyClass('name1f', 'name1l', 1),
+            new MyClass('name2f', 'name2l', 2),
+            new MyClass('name3f', 'name3l', 3)
+        ];
+
+        $json = json_encode($objects);
+
+        $decoded = Json::decode($json, MyClass::class);
+
+        $this->assertTrue(is_array($decoded));
+
+        $expecteds = [
+            ['fname' => 'name1f', 'lname' => 'name1l', 'age' => 1],
+            ['fname' => 'name2f', 'lname' => 'name2l', 'age' => 2],
+            ['fname' => 'name3f', 'lname' => 'name3l', 'age' => 3]];
+
+        foreach ($decoded as $key => $e) {
+            $this->assertEquals(MyClass::class, $e::class);
+
+            $this->assertEquals($expecteds[$key], (array)$e);
+        }
+
+    }
+
     private function build_foo($base_foo) {
         global $now, $inow;
         $myClass = new MyClass("First Name", "Last Name", 10);
