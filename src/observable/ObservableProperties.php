@@ -13,11 +13,13 @@ trait ObservableProperties
     #[Setter(AccessLevel::PRIVATE)]
     private array $subscribers = ['__get' => [], '__set' => []];
 
-    public function &__get($name) {
+    public function __get($name) {
         $pd = ClassCache::get(__CLASS__)->get_property($name);
         if ($pd !== null)
             $this->emit(ObservableAction::GET, $pd, null);
 
+        if (is_object($this))
+            return $pd->get_value($this);
         return $this->{$name};
     }
 
@@ -26,7 +28,9 @@ trait ObservableProperties
         if ($pd !== null)
             $this->emit(ObservableAction::SET, $pd, $value);
 
-        $this->{$name} = $value;
+        if (is_object($this))
+            $pd->delegate->setValue($this, $value);
+        else $this->{$name} = $value;
     }
 
     protected function observe($name, ObservableAction $type, $callback) {
