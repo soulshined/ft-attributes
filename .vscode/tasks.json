@@ -39,8 +39,7 @@
             "options": {
                 "env": {
                     "XDEBUG_MODE": "debug,develop",
-                    "XDEBUG_CONFIG" : "idekey=VSCODE",
-                    "ft.log_level" : "Debug"
+                    "XDEBUG_CONFIG" : "idekey=VSCODE"
                 }
             },
             "presentation": {
