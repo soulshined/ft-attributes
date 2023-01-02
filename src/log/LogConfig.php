@@ -16,7 +16,8 @@ final class LogConfig {
     public function __construct(
         Level | string $level = Level::Info,
         \DateTimeZone | null $timezone = null,
-        public readonly string $format = "%datetime% %channel% [%level_name%] > %message% | %context% %extra%\n"
+        public readonly string $format = "%datetime% %channel% [%level_name%] > %message% | %context% %extra%\n",
+        public readonly bool $preserve_newlines = true
     ) {
         if ($timezone === null)
             $this->timezone = new DateTimeZone(date_default_timezone_get());

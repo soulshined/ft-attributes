@@ -13,10 +13,10 @@ use Monolog\Registry;
 trait LoggerTrait
 {
 
-    protected static function get_handler(Level $level, string $format) {
+    protected static function get_handler(Level $level, string $format, bool $preserve_newlines) {
         $handler = new StreamHandler("php://stdout", $level);
         $datetime = "Y-m-d H:i:s";
-        $handler->setFormatter(new LineFormatter($format, $datetime));
+        $handler->setFormatter(new LineFormatter($format, $datetime, $preserve_newlines));
         return $handler;
     }
 
@@ -32,7 +32,7 @@ trait LoggerTrait
 
         if (!Registry::hasLogger(__CLASS__))
             Registry::addLogger(new Logger($shortname, [
-                static::get_handler($config->level, $config->format)
+                static::get_handler($config->level, $config->format, $config->preserve_newlines)
             ], [], $config->timezone), __CLASS__);
 
         $instance = Registry::getInstance(__CLASS__);
